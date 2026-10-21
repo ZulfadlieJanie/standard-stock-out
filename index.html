@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Standard Item Usage</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; background-color: #f8f9fa; }
+    .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 20px; }
+    .header img { width: 120px; height: auto; margin-bottom: 10px; border-radius: 50%; }
+    h1 { color: #007bff; font-size: 1.8em; margin-bottom: 5px; }
+    h2 { color: #6c757d; font-size: 1.1em; font-weight: normal; margin-top: 0; }
+    h3 { margin-top: 25px; color: #343a40; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 1.2em; }
+    label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    
+    .item-box { background: #fdfdfd; border: 1px solid #007bff; border-radius: 6px; padding: 15px; margin-bottom: 20px; position: relative; }
+    .item-box-title { font-weight: bold; color: #007bff; margin-bottom: 10px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
+    
+    .scan-input-group { display: flex; align-items: center; margin-bottom: 10px; }
+    .scan-input-group input { flex-grow: 1; margin-bottom: 0; border-right: none; border-radius: 4px 0 0 4px; }
+    .scan-btn { background-color: #6c757d; color: white; width: 45px; height: 41px; border: 1px solid #ced4da; border-radius: 0 4px 4px 0; cursor: pointer; font-size: 1.1em; margin-top: 0; line-height: 1; box-sizing: border-box; }
+    .scan-btn:hover { background-color: #5a6268; }
+
+    .item-details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.85em; background: #f8fafc; padding: 10px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+    .item-details-grid div { background: white; padding: 6px 10px; border-radius: 4px; border: 1px solid #edf2f7; }
+    .item-details-grid label { font-size: 0.8em; color: #64748b; margin-top: 0; margin-bottom: 2px; }
+
+    .btn-add-item { background-color: #17a2b8; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.95em; font-weight: bold; margin-bottom: 20px; }
+    .btn-add-item:hover { background-color: #138496; }
+    .btn-remove { background-color: #dc3545; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; }
+    .btn-remove:hover { background-color: #c82333; }
+
+    .action-btns { display: flex; gap: 15px; margin-top: 25px; }
+    .btn-submit { background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; width: 70%; font-weight: bold; }
+    .btn-submit:hover { background-color: #218838; }
+    .btn-cancel { background-color: #6c757d; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; width: 30%; }
+    .btn-cancel:hover { background-color: #5a6268; }
+
+    #message-area { margin-top: 20px; padding: 12px; border-radius: 4px; text-align: center; display: none; font-weight: bold; }
+    .error { background-color: #ffe6e6; color: red; border: 1px solid red; }
+
+    /* Modal for QR Scanner */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); }
+    .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 450px; border-radius: 8px; text-align: center; }
+    .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close-btn:hover { color: #000; }
+
+    .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ced4da; font-size: 0.8em; color: #6c757d; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <img src="https://lh3.googleusercontent.com/d/1tCDAMimy_b0x9kRmWNyYMn4voR9Ynr0J" alt="Logo">
+    <h1>Standard Item Usage</h1>
+    <h2>Haemodialysis Unit, Sarawak General Hospital</h2>
+  </div>
+
+  <form id="stockOutForm">
+    <div class="grid-2">
+      <div>
+        <label for="staffName">Name of Staff</label>
+        <input type="text" id="staffName" name="staffName" required placeholder="Enter full name">
+      </div>
+      <div>
+        <label for="designation">Designation</label>
+        <select id="designation" name="designation" required>
+          <option value="" disabled selected>Select Designation</option>
+          <option value="Penolong Pegawai Perubatan">Penolong Pegawai Perubatan</option>
+          <option value="Jururawat">Jururawat</option>
+          <option value="Pembantu Perawatan Kesihatan">Pembantu Perawatan Kesihatan</option>
+        </select>
+      </div>
+    </div>
+
+    <h3>List of Stock Out Items</h3>
+    <div id="itemsContainer"></div>
+
+    <button type="button" class="btn-add-item" onclick="addNewItemBox()">+ Add Item</button>
+
+    <div class="action-btns">
+      <button type="submit" class="btn-submit" id="submitBtn">Submit Stock Out</button>
+      <button type="button" class="btn-cancel" onclick="resetForm()">Cancel</button>
+    </div>
+
+    <div id="message-area"></div>
+  </form>
+
+  <div class="footer">
+    &copy; Designed and developed by PPP Zulfadlie bin Janie<br>
+    for Haemodialysis Unit, Sarawak General Hospital
+  </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div id="scannerModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="stopAndHideScanner()">&times;</span>
+    <h2>Scan Item QR Code</h2>
+    <div id="reader-modal" style="width: 100%;"></div>
+    <p id="scan-status" style="font-size: 0.8em; color: gray;">Place QR code within the view.</p>
+  </div>
+</div>
+
+<script>
+  // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT /exec URL
+  const SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbyGAnVBVbeD4J4II1gsyDPdv-mOYJFLmKsj5nwg1rBz9uZCN6y7uQyttP9GTQBGmkDj-g/exec";
+
+  let fullCatalogue = [];
+  let itemCount = 0;
+  let activeScanBoxId = null;
+  let html5QrCode = null;
+
+  window.onload = function() {
+    loadCatalogue();
+  };
+
+  function loadCatalogue() {
+    fetch(`${SCRIPT_API_URL}?action=getCatalogue`)
+      .then(response => response.json())
+      .then(res => {
+        if (res.success) {
+          fullCatalogue = res.data;
+          addNewItemBox();
+        } else {
+          showMessage("Failed to load catalogue: " + res.error, "error");
+        }
+      })
+      .catch(err => {
+        showMessage("Network/API error loading catalogue: " + err, "error");
+      });
+  }
+
+  function addNewItemBox() {
+    itemCount++;
+    const boxId = itemCount;
+    const container = document.getElementById('itemsContainer');
+
+    const box = document.createElement('div');
+    box.className = 'item-box';
+    box.id = `itemBox_${boxId}`;
+    box.innerHTML = `
+      <div class="item-box-title">
+        <span>Item #${boxId}</span>
+        ${boxId > 1 ? `<button type="button" class="btn-remove" onclick="removeItemBox(${boxId})">Remove</button>` : ''}
+      </div>
+
+      <label>Scan Item Code / Select Item:</label>
+      <div class="scan-input-group">
+        <input type="text" id="itemCode_${boxId}" placeholder="Scan QR Code or enter Item Code" onchange="lookupItemCode(${boxId}, this.value)" required>
+        <button type="button" class="scan-btn" onclick="startScanner(${boxId})" title="Scan QR Code">📷</button>
+      </div>
+
+      <div class="item-details-grid" id="details_${boxId}" style="display: none;">
+        <div><label>Nama Item:</label><br><b id="namaItem_${boxId}">-</b></div>
+        <div><label>Item Kod Baru:</label><br><b id="kodBaru_${boxId}">-</b></div>
+        <div><label>Deskripsi Pembungkusan:</label><br><span id="deskripsi_${boxId}">-</span></div>
+        <div><label>SKU Pembekalan:</label><br><span id="skuPembekalan_${boxId}">-</span></div>
+        <div><label>Harga (RM):</label><br><span id="harga_${boxId}">0.00</span></div>
+      </div>
+
+      <label for="totalOut_${boxId}">Total Out (Quantity Per SKU):</label>
+      <input type="number" id="totalOut_${boxId}" min="1" placeholder="Enter quantity" required>
+    `;
+
+    container.appendChild(box);
+  }
+
+  function removeItemBox(boxId) {
+    const box = document.getElementById(`itemBox_${boxId}`);
+    if (box) box.remove();
+  }
+
+  function lookupItemCode(boxId, codeVal) {
+    const trimmedCode = codeVal.trim().toLowerCase();
+    if (!trimmedCode) return;
+
+    const matched = fullCatalogue.find(item => 
+      item.kodBaru.toLowerCase() === trimmedCode || item.namaItem.toLowerCase() === trimmedCode
+    );
+
+    const detailsGrid = document.getElementById(`details_${boxId}`);
+
+    if (matched) {
+      document.getElementById(`itemCode_${boxId}`).value = matched.kodBaru;
+      document.getElementById(`namaItem_${boxId}`).textContent = matched.namaItem;
+      document.getElementById(`kodBaru_${boxId}`).textContent = matched.kodBaru;
+      document.getElementById(`deskripsi_${boxId}`).textContent = matched.deskripsiPembungkusan || '-';
+      document.getElementById(`skuPembekalan_${boxId}`).textContent = matched.skuPembekalan || '-';
+      document.getElementById(`harga_${boxId}`).textContent = matched.harga || '0.00';
+      detailsGrid.style.display = 'grid';
+    } else {
+      alert("Item code not found in catalogue!");
+      document.getElementById(`itemCode_${boxId}`).value = '';
+      detailsGrid.style.display = 'none';
+    }
+  }
+
+  /* Robust Device Enumeration Camera Scanner */
+  function startScanner(boxId) {
+    activeScanBoxId = boxId;
+    document.getElementById('scannerModal').style.display = 'block';
+    document.getElementById('scan-status').textContent = 'Requesting camera access...';
+
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode("reader-modal");
+    }
+
+    const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length > 0) {
+        let selectedCameraId = devices[0].id;
+        for (let dev of devices) {
+          const label = dev.label.toLowerCase();
+          if (label.includes('back') || label.includes('rear') || label.includes('environment')) {
+            selectedCameraId = dev.id;
+            break;
+          }
+        }
+
+        html5QrCode.start(selectedCameraId, config, onScanSuccess, onScanFailure)
+          .then(() => {
+            document.getElementById('scan-status').textContent = 'Scanner Active. Point camera at QR Code.';
+          })
+          .catch(err => {
+            console.error("Camera start failed:", err);
+            document.getElementById('scan-status').innerHTML = `<b style="color:red;">Error starting camera stream. Check permissions.</b>`;
+          });
+      } else {
+        document.getElementById('scan-status').innerHTML = `<b style="color:red;">No camera detected on this device.</b>`;
+      }
+    }).catch(err => {
+      console.error("Camera access error:", err);
+      document.getElementById('scan-status').innerHTML = 
+        `<b style="color:red;">Camera access denied.</b><br>Please click the lock icon in your address bar and allow camera permissions.`;
+    });
+  }
+
+  function stopAndHideScanner() {
+    if (html5QrCode && html5QrCode.isScanning) {
+      html5QrCode.stop().then(() => {
+        document.getElementById('scannerModal').style.display = 'none';
+        activeScanBoxId = null;
+      }).catch(() => {
+        document.getElementById('scannerModal').style.display = 'none';
+        activeScanBoxId = null;
+      });
+    } else {
+      document.getElementById('scannerModal').style.display = 'none';
+      activeScanBoxId = null;
+    }
+  }
+
+  function onScanSuccess(decodedText) {
+    stopAndHideScanner();
+    if (activeScanBoxId && decodedText.trim() !== "") {
+      playScanBeep();
+      lookupItemCode(activeScanBoxId, decodedText.trim());
+    }
+  }
+
+  function onScanFailure() {}
+
+  function playScanBeep() {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+      oscillator.start();
+      setTimeout(() => oscillator.stop(), 150);
+    } catch (e) {}
+  }
+
+  document.getElementById('stockOutForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const boxes = document.querySelectorAll('.item-box');
+    const itemsToSubmit = [];
+
+    for (let box of boxes) {
+      const boxId = box.id.split('_')[1];
+      const kodBaru = document.getElementById(`kodBaru_${boxId}`).textContent;
+      const namaItem = document.getElementById(`namaItem_${boxId}`).textContent;
+      const deskripsi = document.getElementById(`deskripsi_${boxId}`).textContent;
+      const skuPembekalan = document.getElementById(`skuPembekalan_${boxId}`).textContent;
+      const harga = document.getElementById(`harga_${boxId}`).textContent;
+      const totalOut = document.getElementById(`totalOut_${boxId}`).value;
+
+      if (kodBaru === '-' || !totalOut) {
+        showMessage(`Please scan/select a valid item and quantity for Item #${boxId}.`, "error");
+        return;
+      }
+
+      itemsToSubmit.push({
+        namaItem: namaItem,
+        kodBaru: kodBaru,
+        deskripsiPembungkusan: deskripsi,
+        skuPembekalan: skuPembekalan,
+        harga: harga,
+        totalOut: totalOut
+      });
+    }
+
+    const payload = {
+      staffName: document.getElementById('staffName').value.trim(),
+      designation: document.getElementById('designation').value,
+      items: itemsToSubmit
+    };
+
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').textContent = "Submitting Data...";
+
+    fetch(SCRIPT_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "saveStockOut",
+        payload: payload
+      })
+    })
+    .then(response => response.json())
+    .then(res => {
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = "Submit Stock Out";
+      if (res.success) {
+        alert("Data submitted successfully!");
+        resetForm();
+      } else {
+        showMessage("Error submitting data: " + res.error, "error");
+      }
+    })
+    .catch(err => {
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = "Submit Stock Out";
+      showMessage("Server/Network error: " + err, "error");
+    });
+  });
+
+  function resetForm() {
+    document.getElementById('stockOutForm').reset();
+    document.getElementById('itemsContainer').innerHTML = '';
+    itemCount = 0;
+    addNewItemBox();
+    document.getElementById('message-area').style.display = 'none';
+  }
+
+  function showMessage(msg, type) {
+    const area = document.getElementById('message-area');
+    area.textContent = msg;
+    area.className = type;
+    area.style.display = "block";
+  }
+</script>
+</body>
+</html>
