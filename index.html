@@ -165,7 +165,7 @@
       </div>
 
       <label for="totalOut_${boxId}">Total Out (Quantity Per SKU):</label>
-      <input type="number" id="totalOut_${boxId}" min="1" placeholder="Enter quantity" required>
+      <input type="number" id="totalOut_${boxId}" min="1" step="1" placeholder="Enter quantity" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
     `;
 
     container.appendChild(box);
@@ -294,11 +294,11 @@
       const deskripsi = document.getElementById(`deskripsi_${boxId}`).textContent;
       const skuPembekalan = document.getElementById(`skuPembekalan_${boxId}`).textContent;
       const harga = document.getElementById(`harga_${boxId}`).textContent;
-      const totalOut = document.getElementById(`totalOut_${boxId}`).value;
+      const totalOut = parseInt(document.getElementById(`totalOut_${boxId}`).value, 10);
 
-      if (kodBaru === '-' || !totalOut) {
-        showMessage(`Please scan/select a valid item and quantity for Item #${boxId}.`, "error");
-        return;
+      if (kodBaru === '-' || !totalOut || totalOut <= 0) {
+        showMessage(`Please scan/select a valid item and enter a valid quantity for Item #${boxId}.`, "error");
+      return;
       }
 
       itemsToSubmit.push({
